@@ -296,6 +296,8 @@ final class TimeSeries
      * @param int|null $count
      * @param AggregationRule|null $rule
      * @param bool $reverse
+     * @param int|null $filter_by_value_from
+     * @param int|null $filter_by_value_to
      * @return Sample[]
      * @throws RedisClientException
      * @throws RedisException
@@ -307,6 +309,8 @@ final class TimeSeries
         ?int $count = null,
         ?AggregationRule $rule = null,
         bool $reverse = false
+        ?int $filter_by_value_from = null,
+        ?int $filter_by_value_to = null
     ): array
     {
         $fromTs = $from ? (string)DateTimeUtils::timestampWithMsFromDateTime($from) : '-';
@@ -317,6 +321,12 @@ final class TimeSeries
         if ($count !== null) {
             $params[] = 'COUNT';
             $params[] = (string)$count;
+        }
+
+        if ($filter_by_value_from !== null && $filter_by_value_to !== null) {
+            $params[] = 'FILTER_BY_VALUE';
+            $params[] = (int)$filter_by_value_from;
+            $params[] = (int)$filter_by_value_to;
         }
 
         $rawResults = $this->redis->executeCommand(array_merge($params, $this->getAggregationParams($rule)));
